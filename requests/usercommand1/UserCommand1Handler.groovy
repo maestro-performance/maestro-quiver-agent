@@ -11,6 +11,7 @@ class UserCommand1Handler extends AbstractHandler {
     private static final Logger logger = LoggerFactory.getLogger(UserCommand1Handler.class);
     private File workDir = new File("/tmp/maestro/agent");
     private File quiverSourceDir = new File(workDir, "quiver");
+    private File quiverInstallDir = new File("/tmp/maestro/quiver");
 
     def executeOnShell(String command) {
         return executeOnShell(command, new File(System.properties.'user.dir'))
@@ -37,8 +38,7 @@ class UserCommand1Handler extends AbstractHandler {
         return commandArray
     }
 
-    @Override
-    Object handle() {
+    void quiverInstall() {
         logger.info("Creating directores")
 
         workDir.mkdirs()
@@ -54,7 +54,7 @@ class UserCommand1Handler extends AbstractHandler {
                 cloneProcess.text.eachLine { logger.error("Subprocess output: {}", it) }
                 this.getClient().publish(MaestroTopics.MAESTRO_TOPIC, new InternalError())
 
-                return null
+                return
             }
         }
 
@@ -67,7 +67,7 @@ class UserCommand1Handler extends AbstractHandler {
             logger.error("Unable to build quiver")
             this.getClient().publish(MaestroTopics.MAESTRO_TOPIC, new InternalError())
 
-            return null
+            return
         }
 
         logger.info("Installing the project")
@@ -78,8 +78,26 @@ class UserCommand1Handler extends AbstractHandler {
 
             this.getClient().publish(MaestroTopics.MAESTRO_TOPIC, new InternalError())
 
-            return null
+            return
         }
+
+        logger.info("Quiver installed successfully")
+        return
+    }
+
+    @Override
+    Object handle() {
+        if (!quiverInstallDir.exists()) {
+            quiverInstall()
+        }
+
+
+        logger.info("Running quiver")
+        def workerOptions = getWorkerOptions();
+
+        String command = './quiver ' + workerOptions.getBrokerURL()
+
+        executeOnShell(command, quiverInstallDir)
 
         logger.info("Quiver installed successfully")
         return null
