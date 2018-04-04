@@ -6,6 +6,7 @@ import org.maestro.client.notes.*;
 import org.maestro.client.exchange.MaestroTopics
 
 import org.maestro.agent.base.AbstractHandler
+import groovy.json.JsonSlurper
 
 class UserCommand1Handler extends AbstractHandler {
     private static final Logger logger = LoggerFactory.getLogger(UserCommand1Handler.class);
@@ -39,9 +40,7 @@ class UserCommand1Handler extends AbstractHandler {
     }
 
     void quiverInstall() {
-        logger.info("Creating directores")
 
-        workDir.mkdirs()
 
         if (!quiverSourceDir.exists()) {
 
@@ -87,19 +86,46 @@ class UserCommand1Handler extends AbstractHandler {
 
     @Override
     Object handle() {
-        if (!quiverInstallDir.exists()) {
-            quiverInstall()
-        }
+        logger.info("Creating directores")
+
+        workDir.mkdirs()
+
+        // if (!quiverInstallDir.exists()) {
+        //     quiverInstall()
+        // }
+
+        logger.info("Obtaining quiver image")
+        executeOnShell("docker pull docker.io/ssorj/quiver")
 
 
-        logger.info("Running quiver")
+        logger.info("Creating temporary docker volume")
+        executeOnShell("docker volume create maestro-quiver")
+
+        logger.info("Obtaining the volume directory")
+        def volumeProc = "docker volume inspect maestro-quiver".execute()
+        volumeProc.waitFor()
+
+        def slurper = new JsonSlurper()
+        def volumeInfo = slurper.parseText(volumeProc.text)
+
+        logger.info("Docker volume directory is {}", volumeInfo[0].Mountpoint)
+
+
+        logger.info("Running quiver via docker")
         def workerOptions = getWorkerOptions();
 
-        String command = './quiver ' + workerOptions.getBrokerURL()
+        // docker run -it --net=host docker.io/ssorj/quiver quiver --arrow rhea q0
+        String command = 'docker run -v maestro-quiver:/mnt --net=host docker.io/ssorj/quiver quiver --output /mnt ' + workerOptions.getBrokerURL()
 
         executeOnShell(command, quiverInstallDir)
 
-        logger.info("Quiver installed successfully")
+        String logDir = System.getProperty("maestro.log.dir")
+        String copyCommand = "sudo cp -Rv " + volumeInfo[0].Mountpoint + " " + logDir
+        logger.info("Executing {}", copyCommand)
+        executeOnShell(copyCommand)
+
+
+        logger.info("Quiver run successfully")
         return null
     }
 }
