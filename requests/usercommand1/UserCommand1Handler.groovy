@@ -44,7 +44,10 @@ class UserCommand1Handler extends AbstractHandler {
 
     @Override
     Object handle() {
-        logger.info("Creating directores")
+        String logDir = System.getProperty("maestro.log.dir")
+
+        logger.info("Erasing old data")
+        "rm -rf ${logDir}/quiver".execute();
 
         logger.info("Obtaining Quiver image")
         executeOnShell("docker pull docker.io/ssorj/quiver")
@@ -66,7 +69,7 @@ class UserCommand1Handler extends AbstractHandler {
         logger.info("Running Quiver via docker")
         def workerOptions = getWorkerOptions();
 
-        String command = 'docker run -v maestro-quiver:/mnt --net=host docker.io/ssorj/quiver quiver --output /mnt '
+        String command = 'docker run -v maestro-quiver:/mnt --net=host docker.io/ssorj/quiver quiver --output /mnt/quiver '
 
         UserCommand1Request request = (UserCommand1Request) getNote()
         String arrow = request.getPayload()
@@ -77,22 +80,18 @@ class UserCommand1Handler extends AbstractHandler {
         }
 
         command = command + " " + workerOptions.getBrokerURL()
-
         executeOnShell(command)
 
-        String logDir = System.getProperty("maestro.log.dir")
+        logger.info("Removing the temporary volume used by Maestro Quiver")
+        executeOnShell("docker volume rm -f maestro-quiver")
 
-        "mkdir -p ${logDir}/quiver".execute();
-        String copyCommand = "sudo mv -Rv " + volumeInfo[0].Mountpoint + " " + logDir + "/quiver"
+        String copyCommand = "sudo mv " + volumeInfo[0].Mountpoint + "/quiver " + logDir
         logger.debug("Executing {}", copyCommand)
         executeOnShell(copyCommand)
 
         String username = System.getProperty("user.name")
         logger.info("Fixing log file permissions")
         executeOnShell("sudo chown -Rv " + username + " " + logDir)
-
-        logger.info("Removing the temporary volume used by Maestro Quiver")
-        executeOnShell("docker volume rm -f maestro-quiver")
 
         logger.info("Quiver test ran successfully")
         return null
