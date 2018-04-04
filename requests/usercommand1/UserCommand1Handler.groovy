@@ -8,6 +8,11 @@ import org.maestro.client.exchange.MaestroTopics
 import org.maestro.agent.base.AbstractHandler
 import groovy.json.JsonSlurper
 
+/**
+ * The process execution code here was taken from the examples provided by Joerg Mueller
+ * on http://www.joergm.com/2010/09/executing-shell-commands-in-groovy. They were slightly
+ * modified to adjust to the agent code
+ */
 class UserCommand1Handler extends AbstractHandler {
     private static final Logger logger = LoggerFactory.getLogger(UserCommand1Handler.class);
 
@@ -78,7 +83,7 @@ class UserCommand1Handler extends AbstractHandler {
         String logDir = System.getProperty("maestro.log.dir")
 
         "mkdir -p ${logDir}/quiver".execute();
-        String copyCommand = "sudo cp -Rv " + volumeInfo[0].Mountpoint + " " + logDir + "/quiver"
+        String copyCommand = "sudo mv -Rv " + volumeInfo[0].Mountpoint + " " + logDir + "/quiver"
         logger.debug("Executing {}", copyCommand)
         executeOnShell(copyCommand)
 
