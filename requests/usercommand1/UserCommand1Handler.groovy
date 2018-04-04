@@ -10,8 +10,6 @@ import groovy.json.JsonSlurper
 
 class UserCommand1Handler extends AbstractHandler {
     private static final Logger logger = LoggerFactory.getLogger(UserCommand1Handler.class);
-    private File workDir = new File("/tmp/maestro/agent");
-    private File quiverSourceDir = new File(workDir, "quiver");
     private File quiverInstallDir = new File("/tmp/maestro/quiver");
 
     def executeOnShell(String command) {
@@ -39,60 +37,11 @@ class UserCommand1Handler extends AbstractHandler {
         return commandArray
     }
 
-    void quiverInstall() {
-
-
-        if (!quiverSourceDir.exists()) {
-
-            logger.info("Cloning the project")
-            def cloneProcess = "git clone https://github.com/ssorj/quiver.git".execute(null, workDir)
-            cloneProcess.waitFor()
-
-            if (cloneProcess.exitValue() != 0) {
-                logger.error("Unable to clone quiver repository")
-                cloneProcess.text.eachLine { logger.error("Subprocess output: {}", it) }
-                this.getClient().publish(MaestroTopics.MAESTRO_TOPIC, new InternalError())
-
-                return
-            }
-        }
-
-
-        logger.info("Building the project")
-
-        def buildProcess = executeOnShell("make build PREFIX=/tmp/maestro/quiver", quiverSourceDir)
-
-        if (buildProcess != 0) {
-            logger.error("Unable to build quiver")
-            this.getClient().publish(MaestroTopics.MAESTRO_TOPIC, new InternalError())
-
-            return
-        }
-
-        logger.info("Installing the project")
-        def installProcess = executeOnShell("make install", quiverSourceDir)
-
-        if (installProcess != 0) {
-            logger.error("Unable to install quiver")
-
-            this.getClient().publish(MaestroTopics.MAESTRO_TOPIC, new InternalError())
-
-            return
-        }
-
-        logger.info("Quiver installed successfully")
-        return
-    }
-
     @Override
     Object handle() {
         logger.info("Creating directores")
 
         workDir.mkdirs()
-
-        // if (!quiverInstallDir.exists()) {
-        //     quiverInstall()
-        // }
 
         logger.info("Obtaining quiver image")
         executeOnShell("docker pull docker.io/ssorj/quiver")
