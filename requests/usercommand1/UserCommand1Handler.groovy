@@ -79,7 +79,8 @@ class UserCommand1Handler extends AbstractHandler {
         def slurper = new JsonSlurper()
         def volumeInfo = slurper.parseText(volumeProc.text)
 
-        logger.info("Docker volume directory is {}", volumeInfo[0].Mountpoint)
+        def dockerVolumePath =  volumeInfo[0].Mountpoint
+        logger.info("Docker volume directory is {}", dockerVolumePath)
 
 
         logger.info("Running Quiver via docker")
@@ -110,9 +111,7 @@ class UserCommand1Handler extends AbstractHandler {
             return null
         }
 
-        String copyCommand = "sudo mv " + volumeInfo[0].Mountpoint + "/quiver " + logDir
-        logger.debug("Executing {}", copyCommand)
-        if (executeOnShell(copyCommand) != 0) {
+        if (executeOnShell("sudo mv ${dockerVolumePath}/quiver ${logDir}") != 0) {
             logger.error("Unable to copy the report files from the temporary volume")
             this.getClient().publish(MaestroTopics.MAESTRO_TOPIC, new InternalError())
 
@@ -121,7 +120,7 @@ class UserCommand1Handler extends AbstractHandler {
 
         String username = System.getProperty("user.name")
         logger.info("Fixing log file permissions")
-        if (executeOnShell("sudo chown -Rv " + username + " " + logDir) != 0) {
+        if (executeOnShell("sudo chown -Rv ${username} ${logDir}") != 0) {
             logger.error("Unable to fix the permissions of the report files")
             this.getClient().publish(MaestroTopics.MAESTRO_TOPIC, new InternalError())
 
