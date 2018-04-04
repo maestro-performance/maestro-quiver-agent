@@ -16,7 +16,8 @@ class UserCommand1Handler extends AbstractHandler {
     }
 
     def executeOnShell(String command, File workingDir) {
-        println command
+        logger.debug("Executing {}", command)
+
         def process = new ProcessBuilder(addShellPrefix(command))
                                         .directory(workingDir)
                                         .redirectErrorStream(true)
