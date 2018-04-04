@@ -40,8 +40,6 @@ class UserCommand1Handler extends AbstractHandler {
     Object handle() {
         logger.info("Creating directores")
 
-        workDir.mkdirs()
-
         logger.info("Obtaining quiver image")
         executeOnShell("docker pull docker.io/ssorj/quiver")
 
@@ -62,8 +60,17 @@ class UserCommand1Handler extends AbstractHandler {
         logger.info("Running quiver via docker")
         def workerOptions = getWorkerOptions();
 
-        // docker run -it --net=host docker.io/ssorj/quiver quiver --arrow rhea q0
-        String command = 'docker run -v maestro-quiver:/mnt --net=host docker.io/ssorj/quiver quiver --output /mnt ' + workerOptions.getBrokerURL()
+        String command = 'docker run -v maestro-quiver:/mnt --net=host docker.io/ssorj/quiver quiver --output /mnt '
+
+        UserCommand1Request request = (UserCommand1Request) getNote()
+        String arrow = request.getPayload()
+
+        if (arrow != null) {
+            logger.info("Using quiver arrow {}", arrow)
+            command = command + " --arrow " + arrow
+        }
+
+        command = command + " " + workerOptions.getBrokerURL()
 
         executeOnShell(command)
 
