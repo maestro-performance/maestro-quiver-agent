@@ -41,7 +41,7 @@ class UserCommand1Handler extends AbstractHandler {
     Object handle() {
         logger.info("Creating directores")
 
-        logger.info("Obtaining quiver image")
+        logger.info("Obtaining Quiver image")
         executeOnShell("docker pull docker.io/ssorj/quiver")
 
 
@@ -58,7 +58,7 @@ class UserCommand1Handler extends AbstractHandler {
         logger.info("Docker volume directory is {}", volumeInfo[0].Mountpoint)
 
 
-        logger.info("Running quiver via docker")
+        logger.info("Running Quiver via docker")
         def workerOptions = getWorkerOptions();
 
         String command = 'docker run -v maestro-quiver:/mnt --net=host docker.io/ssorj/quiver quiver --output /mnt '
@@ -80,8 +80,12 @@ class UserCommand1Handler extends AbstractHandler {
         logger.debug("Executing {}", copyCommand)
         executeOnShell(copyCommand)
 
+        String username = System.getProperty("user.name")
         logger.info("Fixing log file permissions")
-        executeOnShell("chown -Rv maestro:maestro " + logDir)
+        executeOnShell("chown -Rv " + username + " " + logDir)
+
+        logger.info("Removing the temporary volume used by Maestro Quiver")
+        executeOnShell("docker volume rm -f maestro-quiver")
 
         logger.info("Quiver test ran successfully")
         return null
