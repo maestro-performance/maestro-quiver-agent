@@ -96,38 +96,37 @@ class UserCommand1Handler extends AbstractHandler {
             command = command + " --arrow " + arrow
         }
 
-        command = command + " " + workerOptions.getBrokerURL()
-        if (executeOnShell(command) != 0) {
-            logger.error("Unable to execute the Quiver test")
-            this.getClient().notifyFailure("Unable to execute the Quiver test")
+        try {
+            command = command + " " + workerOptions.getBrokerURL()
+            if (executeOnShell(command) != 0) {
+                logger.warn("Unable to execute the Quiver test")
+                this.getClient().notifyFailure("Unable to execute the Quiver test")
 
-            return null
+                return null
+            }
+            this.getClient().notifySuccess("Quiver test ran successfully")
+            logger.info("Quiver test ran successfully")
+        }
+        finally {
+            logger.info("Removing the temporary volume used by Maestro Quiver")
+            if (executeOnShell("docker volume rm -f maestro-quiver") != 0) {
+                logger.warn("Unable to remove the temporary volume")
+                this.getClient().publish(MaestroTopics.MAESTRO_TOPIC, new InternalError())
+            }
+
+            if (executeOnShell("sudo mv ${dockerVolumePath}/quiver ${logDir}") != 0) {
+                logger.error("Unable to copy the report files from the temporary volume")
+                this.getClient().publish(MaestroTopics.MAESTRO_TOPIC, new InternalError())
+            }
+
+            String username = System.getProperty("user.name")
+            logger.info("Fixing log file permissions")
+            if (executeOnShell("sudo chown -Rv ${username} ${logDir}") != 0) {
+                logger.error("Unable to fix the permissions of the report files")
+                this.getClient().publish(MaestroTopics.MAESTRO_TOPIC, new InternalError())
+            }
         }
 
-        logger.info("Removing the temporary volume used by Maestro Quiver")
-        if (executeOnShell("docker volume rm -f maestro-quiver") != 0) {
-            logger.warning("Unable to remove the temporary volume")
-
-            return null
-        }
-
-        if (executeOnShell("sudo mv ${dockerVolumePath}/quiver ${logDir}") != 0) {
-            logger.error("Unable to copy the report files from the temporary volume")
-            this.getClient().publish(MaestroTopics.MAESTRO_TOPIC, new InternalError())
-
-            return null
-        }
-
-        String username = System.getProperty("user.name")
-        logger.info("Fixing log file permissions")
-        if (executeOnShell("sudo chown -Rv ${username} ${logDir}") != 0) {
-            logger.error("Unable to fix the permissions of the report files")
-            this.getClient().publish(MaestroTopics.MAESTRO_TOPIC, new InternalError())
-
-            return null
-        }
-
-        logger.info("Quiver test ran successfully")
         return null
     }
 }
