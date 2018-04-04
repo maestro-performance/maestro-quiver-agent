@@ -82,7 +82,7 @@ class UserCommand1Handler extends AbstractHandler {
 
         String username = System.getProperty("user.name")
         logger.info("Fixing log file permissions")
-        executeOnShell("chown -Rv " + username + " " + logDir)
+        executeOnShell("sudo chown -Rv " + username + " " + logDir)
 
         logger.info("Removing the temporary volume used by Maestro Quiver")
         executeOnShell("docker volume rm -f maestro-quiver")
