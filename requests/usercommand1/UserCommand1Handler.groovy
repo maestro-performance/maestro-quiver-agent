@@ -10,7 +10,6 @@ import groovy.json.JsonSlurper
 
 class UserCommand1Handler extends AbstractHandler {
     private static final Logger logger = LoggerFactory.getLogger(UserCommand1Handler.class);
-    private File quiverInstallDir = new File("/tmp/maestro/quiver");
 
     def executeOnShell(String command) {
         return executeOnShell(command, new File(System.properties.'user.dir'))
@@ -66,15 +65,17 @@ class UserCommand1Handler extends AbstractHandler {
         // docker run -it --net=host docker.io/ssorj/quiver quiver --arrow rhea q0
         String command = 'docker run -v maestro-quiver:/mnt --net=host docker.io/ssorj/quiver quiver --output /mnt ' + workerOptions.getBrokerURL()
 
-        executeOnShell(command, quiverInstallDir)
+        executeOnShell(command)
 
         String logDir = System.getProperty("maestro.log.dir")
         String copyCommand = "sudo cp -Rv " + volumeInfo[0].Mountpoint + " " + logDir
-        logger.info("Executing {}", copyCommand)
+        logger.debug("Executing {}", copyCommand)
         executeOnShell(copyCommand)
 
+        logger.info("Fixing log file permissions")
+        executeOnShell("chown -Rv maestro:maestro " + logDir)
 
-        logger.info("Quiver run successfully")
+        logger.info("Quiver test ran successfully")
         return null
     }
 }
