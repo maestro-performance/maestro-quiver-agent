@@ -76,7 +76,9 @@ class UserCommand1Handler extends AbstractHandler {
         executeOnShell(command)
 
         String logDir = System.getProperty("maestro.log.dir")
-        String copyCommand = "sudo cp -Rv " + volumeInfo[0].Mountpoint + " " + logDir
+
+        "mkdir -p ${logDir}/quiver".execute();
+        String copyCommand = "sudo cp -Rv " + volumeInfo[0].Mountpoint + " " + logDir + "/quiver"
         logger.debug("Executing {}", copyCommand)
         executeOnShell(copyCommand)
 
