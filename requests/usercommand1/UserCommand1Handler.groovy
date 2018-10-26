@@ -47,40 +47,6 @@ class UserCommand1Handler extends AbstractHandler {
         logger.info("Erasing old data")
         "rm -rf ${logDir}/quiver".execute();
 
-//        logger.info("Obtaining Quiver image")
-//        if (executeOnShell("docker pull docker.io/ssorj/quiver") != 0) {
-//            logger.error("Unable to pull the Quiver image")
-//            this.getClient().publish(MaestroTopics.MAESTRO_TOPIC, new InternalError())
-//
-//            return null
-//        }
-//
-//        logger.info("Creating temporary docker volume")
-//        if (executeOnShell("docker volume create maestro-quiver") != 0) {
-//            logger.error("Unable to create the quiver volume")
-//            this.getClient().publish(MaestroTopics.MAESTRO_TOPIC, new InternalError())
-//
-//            return null
-//        }
-//
-//        logger.info("Obtaining the volume directory")
-//        def volumeProc = "docker volume inspect maestro-quiver".execute()
-//        volumeProc.waitFor()
-//
-//        if (volumeProc.exitValue() != 0) {
-//            logger.error("Unable to query the temporary volume")
-//            this.getClient().publish(MaestroTopics.MAESTRO_TOPIC, new InternalError())
-//
-//            return null
-//        }
-//
-//        def slurper = new JsonSlurper()
-//        def volumeInfo = slurper.parseText(volumeProc.text)
-//
-//        def dockerVolumePath =  volumeInfo[0].Mountpoint
-//        logger.info("Docker volume directory is {}", dockerVolumePath)
-//
-
         logger.info("Running Quiver")
         def workerOptions = getWorkerOptions();
 
@@ -94,16 +60,24 @@ class UserCommand1Handler extends AbstractHandler {
             command = command + " --arrow " + arrow
         }
 
+        Test emptyTest = new Test(0, 0, "", "", new TestDetails("", ""));
+
         try {
+
             command = command + " " + workerOptions.getBrokerURL()
             if (executeOnShell(command) != 0) {
                 logger.warn("Unable to execute the Quiver test")
-                this.getClient().notifyFailure("Unable to execute the Quiver test")
+                this.getClient().notifyFailure(emptyTest, "Unable to execute the Quiver test")
 
                 return null
             }
-            this.getClient().notifySuccess("Quiver test ran successfully")
+            this.getClient().notifySuccess(emptyTest, "Quiver test ran successfully")
             logger.info("Quiver test ran successfully")
+        }
+        catch (Exception e) {
+            this.getClient().notifyFailure(emptyTest, e.getMessage())
+
+            return null
         }
         finally {
 //            String username = System.getProperty("user.name")
