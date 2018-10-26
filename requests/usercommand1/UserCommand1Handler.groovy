@@ -3,10 +3,8 @@ package org.maestro.agent.ext.requests.genericrequest
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.maestro.client.notes.*;
-import org.maestro.client.exchange.MaestroTopics
 
 import org.maestro.agent.base.AbstractHandler
-import groovy.json.JsonSlurper
 
 /**
  * The process execution code here was taken from the examples provided by Joerg Mueller
@@ -49,44 +47,44 @@ class UserCommand1Handler extends AbstractHandler {
         logger.info("Erasing old data")
         "rm -rf ${logDir}/quiver".execute();
 
-        logger.info("Obtaining Quiver image")
-        if (executeOnShell("docker pull docker.io/ssorj/quiver") != 0) {
-            logger.error("Unable to pull the Quiver image")
-            this.getClient().publish(MaestroTopics.MAESTRO_TOPIC, new InternalError())
+//        logger.info("Obtaining Quiver image")
+//        if (executeOnShell("docker pull docker.io/ssorj/quiver") != 0) {
+//            logger.error("Unable to pull the Quiver image")
+//            this.getClient().publish(MaestroTopics.MAESTRO_TOPIC, new InternalError())
+//
+//            return null
+//        }
+//
+//        logger.info("Creating temporary docker volume")
+//        if (executeOnShell("docker volume create maestro-quiver") != 0) {
+//            logger.error("Unable to create the quiver volume")
+//            this.getClient().publish(MaestroTopics.MAESTRO_TOPIC, new InternalError())
+//
+//            return null
+//        }
+//
+//        logger.info("Obtaining the volume directory")
+//        def volumeProc = "docker volume inspect maestro-quiver".execute()
+//        volumeProc.waitFor()
+//
+//        if (volumeProc.exitValue() != 0) {
+//            logger.error("Unable to query the temporary volume")
+//            this.getClient().publish(MaestroTopics.MAESTRO_TOPIC, new InternalError())
+//
+//            return null
+//        }
+//
+//        def slurper = new JsonSlurper()
+//        def volumeInfo = slurper.parseText(volumeProc.text)
+//
+//        def dockerVolumePath =  volumeInfo[0].Mountpoint
+//        logger.info("Docker volume directory is {}", dockerVolumePath)
+//
 
-            return null
-        }
-
-        logger.info("Creating temporary docker volume")
-        if (executeOnShell("docker volume create maestro-quiver") != 0) {
-            logger.error("Unable to create the quiver volume")
-            this.getClient().publish(MaestroTopics.MAESTRO_TOPIC, new InternalError())
-
-            return null
-        }
-
-        logger.info("Obtaining the volume directory")
-        def volumeProc = "docker volume inspect maestro-quiver".execute()
-        volumeProc.waitFor()
-
-        if (volumeProc.exitValue() != 0) {
-            logger.error("Unable to query the temporary volume")
-            this.getClient().publish(MaestroTopics.MAESTRO_TOPIC, new InternalError())
-
-            return null
-        }
-
-        def slurper = new JsonSlurper()
-        def volumeInfo = slurper.parseText(volumeProc.text)
-
-        def dockerVolumePath =  volumeInfo[0].Mountpoint
-        logger.info("Docker volume directory is {}", dockerVolumePath)
-
-
-        logger.info("Running Quiver via docker")
+        logger.info("Running Quiver")
         def workerOptions = getWorkerOptions();
 
-        String command = 'docker run -v maestro-quiver:/mnt --net=host docker.io/ssorj/quiver quiver --output /mnt/quiver '
+        String command = 'quiver --output /mnt/quiver '
 
         UserCommand1Request request = (UserCommand1Request) getNote()
         String arrow = request.getPayload()
@@ -108,23 +106,12 @@ class UserCommand1Handler extends AbstractHandler {
             logger.info("Quiver test ran successfully")
         }
         finally {
-            logger.info("Removing the temporary volume used by Maestro Quiver")
-            if (executeOnShell("docker volume rm -f maestro-quiver") != 0) {
-                logger.warn("Unable to remove the temporary volume")
-                this.getClient().publish(MaestroTopics.MAESTRO_TOPIC, new InternalError())
-            }
-
-            if (executeOnShell("sudo mv ${dockerVolumePath}/quiver ${logDir}") != 0) {
-                logger.error("Unable to copy the report files from the temporary volume")
-                this.getClient().publish(MaestroTopics.MAESTRO_TOPIC, new InternalError())
-            }
-
-            String username = System.getProperty("user.name")
-            logger.info("Fixing log file permissions")
-            if (executeOnShell("sudo chown -Rv ${username} ${logDir}") != 0) {
-                logger.error("Unable to fix the permissions of the report files")
-                this.getClient().publish(MaestroTopics.MAESTRO_TOPIC, new InternalError())
-            }
+//            String username = System.getProperty("user.name")
+//            logger.info("Fixing log file permissions")
+//            if (executeOnShell("sudo chown -Rv ${username} ${logDir}") != 0) {
+//                logger.error("Unable to fix the permissions of the report files")
+//                this.getClient().publish(MaestroTopics.MAESTRO_TOPIC, new InternalError())
+//            }
         }
 
         return null
