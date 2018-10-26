@@ -3,6 +3,7 @@ package org.maestro.agent.ext.requests.genericrequest
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.maestro.client.notes.*;
+import org.maestro.common.worker.TestLogUtils;
 
 import org.maestro.agent.base.AbstractHandler
 
@@ -42,7 +43,9 @@ class UserCommand1Handler extends AbstractHandler {
 
     @Override
     Object handle() {
-        String logDir = System.getProperty("maestro.log.dir")
+        String baseLogDir = System.getProperty("maestro.log.dir")
+        File testLogDir = TestLogUtils.nextTestLogDir(new File(baseLogDir));
+        String logDir = testLogDir.getPath();
 
         logger.info("Erasing old data")
         "rm -rf ${logDir}/quiver".execute();
@@ -50,7 +53,7 @@ class UserCommand1Handler extends AbstractHandler {
         logger.info("Running Quiver")
         def workerOptions = getWorkerOptions();
 
-        String command = "quiver --output ${logDir}/quiver/"
+        String command = "quiver --output ${logDir}"
 
         UserCommand1Request request = (UserCommand1Request) getNote()
         String arrow = request.getPayload()
@@ -61,7 +64,6 @@ class UserCommand1Handler extends AbstractHandler {
         }
 
         try {
-
             command = command + " " + workerOptions.getBrokerURL()
             if (executeOnShell(command) != 0) {
                 logger.warn("Unable to execute the Quiver test")
@@ -69,14 +71,22 @@ class UserCommand1Handler extends AbstractHandler {
 
                 return null
             }
+
+            TestLogUtils.createSymlinks(new File(baseLogDir), false);
+
             this.getClient().notifySuccess(getCurrentTest(), "Quiver test ran successfully")
             logger.info("Quiver test ran successfully")
+
         }
         catch (Exception e) {
+            TestLogUtils.createSymlinks(new File(baseLogDir), true);
+
             this.getClient().notifyFailure(getCurrentTest(), e.getMessage())
+
 
             return null
         }
+
 
         return null
     }
