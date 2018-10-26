@@ -83,10 +83,8 @@ class UserCommand1Handler extends AbstractHandler {
 
             this.getClient().notifyFailure(getCurrentTest(), e.getMessage())
 
-
             return null
         }
-
 
         return null
     }
