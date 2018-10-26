@@ -50,7 +50,7 @@ class UserCommand1Handler extends AbstractHandler {
         logger.info("Running Quiver")
         def workerOptions = getWorkerOptions();
 
-        String command = 'quiver --output /mnt/quiver '
+        String command = "quiver --output ${logDir}/quiver/"
 
         UserCommand1Request request = (UserCommand1Request) getNote()
         String arrow = request.getPayload()
