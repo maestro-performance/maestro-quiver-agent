@@ -60,32 +60,22 @@ class UserCommand1Handler extends AbstractHandler {
             command = command + " --arrow " + arrow
         }
 
-        Test emptyTest = new Test(0, 0, "", "", new TestDetails("", ""));
-
         try {
 
             command = command + " " + workerOptions.getBrokerURL()
             if (executeOnShell(command) != 0) {
                 logger.warn("Unable to execute the Quiver test")
-                this.getClient().notifyFailure(emptyTest, "Unable to execute the Quiver test")
+                this.getClient().notifyFailure(getCurrentTest(), "Unable to execute the Quiver test")
 
                 return null
             }
-            this.getClient().notifySuccess(emptyTest, "Quiver test ran successfully")
+            this.getClient().notifySuccess(getCurrentTest(), "Quiver test ran successfully")
             logger.info("Quiver test ran successfully")
         }
         catch (Exception e) {
-            this.getClient().notifyFailure(emptyTest, e.getMessage())
+            this.getClient().notifyFailure(getCurrentTest(), e.getMessage())
 
             return null
-        }
-        finally {
-//            String username = System.getProperty("user.name")
-//            logger.info("Fixing log file permissions")
-//            if (executeOnShell("sudo chown -Rv ${username} ${logDir}") != 0) {
-//                logger.error("Unable to fix the permissions of the report files")
-//                this.getClient().publish(MaestroTopics.MAESTRO_TOPIC, new InternalError())
-//            }
         }
 
         return null
