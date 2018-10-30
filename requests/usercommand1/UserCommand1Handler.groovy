@@ -47,6 +47,14 @@ class UserCommand1Handler extends AbstractHandler {
     Object handle() {
         String baseLogDirStr = System.getProperty("maestro.log.dir")
 
+        if (baseLogDirStr == null) {
+            logger.error("Cannot continue without the log directory");
+
+            this.getClient().notifyFailure(getCurrentTest(), "The log directory is not set on the agent")
+
+            return null
+        }
+
         File baseLogDir = new File(baseLogDirStr);
         File testLogDir = TestLogUtils.nextTestLogDir(baseLogDir);
         String logDir = testLogDir.getPath();
