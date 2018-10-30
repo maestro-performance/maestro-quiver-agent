@@ -7,6 +7,8 @@ import org.maestro.common.worker.TestLogUtils;
 
 import org.maestro.agent.base.AbstractHandler
 
+import java.io.File
+
 /**
  * The process execution code here was taken from the examples provided by Joerg Mueller
  * on http://www.joergm.com/2010/09/executing-shell-commands-in-groovy. They were slightly
@@ -43,8 +45,10 @@ class UserCommand1Handler extends AbstractHandler {
 
     @Override
     Object handle() {
-        String baseLogDir = System.getProperty("maestro.log.dir")
-        File testLogDir = TestLogUtils.nextTestLogDir(new File(baseLogDir));
+        String baseLogDirStr = System.getProperty("maestro.log.dir")
+
+        File baseLogDir = new File(baseLogDirStr);
+        File testLogDir = TestLogUtils.nextTestLogDir(baseLogDir);
         String logDir = testLogDir.getPath();
 
         logger.info("Erasing old data")
@@ -72,14 +76,14 @@ class UserCommand1Handler extends AbstractHandler {
                 return null
             }
 
-            TestLogUtils.createSymlinks(new File(baseLogDir), false);
+            TestLogUtils.createSymlinks(baseLogDir, false);
 
             this.getClient().notifySuccess(getCurrentTest(), "Quiver test ran successfully")
             logger.info("Quiver test ran successfully")
 
         }
         catch (Exception e) {
-            TestLogUtils.createSymlinks(new File(baseLogDir), true);
+            TestLogUtils.createSymlinks(baseLogDir, true);
 
             this.getClient().notifyFailure(getCurrentTest(), e.getMessage())
 
