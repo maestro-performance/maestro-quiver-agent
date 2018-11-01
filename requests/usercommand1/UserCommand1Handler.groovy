@@ -9,39 +9,8 @@ import org.maestro.agent.base.AbstractHandler
 
 import java.io.File
 
-/**
- * The process execution code here was taken from the examples provided by Joerg Mueller
- * on http://www.joergm.com/2010/09/executing-shell-commands-in-groovy. They were slightly
- * modified to adjust to the agent code
- */
 class UserCommand1Handler extends AbstractHandler {
     private static final Logger logger = LoggerFactory.getLogger(UserCommand1Handler.class);
-
-    def executeOnShell(String command) {
-        return executeOnShell(command, new File(System.properties.'user.dir'))
-    }
-
-    def executeOnShell(String command, File workingDir) {
-        logger.debug("Executing {}", command)
-
-        def process = new ProcessBuilder(addShellPrefix(command))
-                                        .directory(workingDir)
-                                        .redirectErrorStream(true)
-                                        .start()
-        process.inputStream.eachLine { logger.debug("Subprocess output: {}", it) }
-        process.waitFor();
-
-        return process.exitValue()
-    }
-
-    def addShellPrefix(String command) {
-        String[] commandArray = new String[3]
-
-        commandArray[0] = "sh"
-        commandArray[1] = "-c"
-        commandArray[2] = command
-        return commandArray
-    }
 
     @Override
     Object handle() {
@@ -77,7 +46,7 @@ class UserCommand1Handler extends AbstractHandler {
 
         try {
             command = command + " " + workerOptions.getBrokerURL()
-            if (executeOnShell(command) != 0) {
+            if (super.executeOnShell(command) != 0) {
                 logger.warn("Unable to execute the Quiver test")
                 this.getClient().notifyFailure(getCurrentTest(), "Unable to execute the Quiver test")
 
