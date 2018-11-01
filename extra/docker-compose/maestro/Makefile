@@ -1,8 +1,6 @@
 MAESTRO_VERSION=1.5.0-SNAPSHOT
 MAESTRO_BRANCH=devel
 
-all: build
-
 clean:
 	docker rmi -f maestroperf/maestro-agent-quiver:${MAESTRO_VERSION}
 
@@ -11,9 +9,9 @@ maestro:
 
 build: maestro
 
-# push: build
-#	docker push maestroperf/maestro-agent-quiver:${MAESTRO_VERSION}
+push: build
+	docker push maestroperf/maestro-agent-quiver:${MAESTRO_VERSION}
 
-# all: push
+all: push
 
 .PHONY: clean all maestro
