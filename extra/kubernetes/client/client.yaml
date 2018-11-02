@@ -54,6 +54,7 @@ spec:
             configMapKeyRef:
               name: client-config
               key: testParams
+              optional: true
         - name: SOURCE_URL
           valueFrom:
             configMapKeyRef:
