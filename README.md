@@ -39,3 +39,84 @@ about the duration format.
 For a modern hardware with a fast disk, using a Java-based broker, the duration can be set to `150s`. Naturally, Maestro 
 will terminate early if the test finishes early. On the other hand, if the tests terminate unsuccessfully, this value 
 may need to be increased to accommodate the capacity of the hardware in use.
+
+
+Demo: OpenShift
+----
+
+Sample execution of a performance test, using the Agent and [QPid JMS](https://qpid.apache.org/components/jms/index.html) 
+implementation from Quiver.
+
+[![asciicast](https://asciinema.org/a/nrKztBYUJ8VYQ1AawtTH6XDsL.svg)](https://asciinema.org/a/nrKztBYUJ8VYQ1AawtTH6XDsL)
+
+
+Usage: Docker Compose
+----
+
+To launch a mini test cluster using Maestro, a Maestro Agent with Quiver support use the docker compose file provided 
+with this project.
+
+```
+docker-compose -f docker-compose up -d --scale agent=1
+```
+
+Usage: OpenShift
+----
+
+To execute the tests using the Agent deployed on an OpenShift cluster (or a Kubernetes one), first deploy the agent to 
+the OpenShift cluster:
+
+```
+oc apply -f agent 
+oc scale deployment --replicas=1 maestro-agent-quiver 
+```
+
+After this is complete, you can run one of the pre-defined test-cases documented below.
+
+# Running RHEA tests with Quiver
+
+```
+oc get pods
+oc apply -f client/testcase-rhea.yaml
+oc apply -f client/client.yaml
+oc logs maestro-client -f -c client
+oc delete pod maestro-client
+```
+
+
+# Running Qpid JMS tests with Quiver
+
+```
+oc get pods
+oc apply -f client/testcase-qpid-jms.yaml
+oc apply -f client/client.yaml
+oc logs maestro-client -f -c client
+oc delete pod maestro-client
+```
+
+# Running Artemis JMS tests with Quiver
+
+```
+oc get pods
+oc apply -f client/testcase-activemq-artemis-jms.yaml
+oc apply -f client/client.yaml
+oc logs maestro-client -f -c client
+oc delete pod maestro-client
+```
+
+# Running Qpid Messaging CPP tests with Quiver
+
+```
+oc get pods
+oc apply -f client/testcase-qpid-messaging-cpp.yaml
+oc apply -f client/client.yaml
+oc logs maestro-client -f -c client
+oc delete pod maestro-client
+```
+
+
+Building
+----
+
+To build the image, just run `make all` on the directory containing the Makefile (located on the same directory as the 
+docker compose file).
