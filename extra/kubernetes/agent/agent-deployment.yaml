@@ -52,7 +52,11 @@ spec:
           volumeMounts:
             - mountPath: /opt/maestro/maestro-agent/config
               name: config-store
+            - mountPath: /maestro
+              name: data
       volumes:
+        - name: data
+          emptyDir: {}
         - name: config-store
           emptyDir: {}
         - name: config
