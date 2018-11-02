@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: client-config
+data:
+  sendReceiveUrl: amqp://messaging.myproject.svc:5672/queue
+  messageSize: "256"
+  testDuration: "150s"
+  testCase: /test-scripts/FlexibleTest.groovy
+  sourceUrl: https://github.com/maestro-performance/maestro-quiver-agent.git
+  sourceBranch: devel
