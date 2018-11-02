@@ -115,6 +115,12 @@ oc delete pod maestro-client
 ```
 
 
+Usage: Docker Compose
+----
+
+To run the tests natively, you have to ensure that Quiver is installed and operational on your system. With Quiver and 
+Maestro Agent installed on your system, Maestro will take care of the rest.
+
 Building
 ----
 
