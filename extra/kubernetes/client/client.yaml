@@ -50,10 +50,10 @@ spec:
               name: client-config
               key: testCase
         - name: TEST_PARAMS
-            valueFrom:
-              configMapKeyRef:
-                name: client-config
-                key: testParams
+          valueFrom:
+            configMapKeyRef:
+              name: client-config
+              key: testParams
         - name: SOURCE_URL
           valueFrom:
             configMapKeyRef:
