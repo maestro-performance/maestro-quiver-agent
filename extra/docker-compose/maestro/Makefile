@@ -11,14 +11,16 @@
 #   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
-MAESTRO_VERSION=1.5.0-SNAPSHOT
-MAESTRO_BRANCH=devel
+MAESTRO_VERSION?=1.5.0-SNAPSHOT
+MAESTRO_BRANCH?=devel
+MAESTRO_LABEL_VERSION?=${MAESTRO_BRANCH}
 
 clean:
 	docker rmi -f maestroperf/maestro-agent-quiver:${MAESTRO_VERSION}
+	docker rmi -f maestroperf/maestro-agent-quiver:${MAESTRO_LABEL_VERSION}
 
 maestro:
-	cd agent-quiver && docker build --build-arg MAESTRO_VERSION=${MAESTRO_VERSION} --build-arg MAESTRO_BRANCH=${MAESTRO_BRANCH} -t maestroperf/maestro-agent-quiver:${MAESTRO_VERSION} --target maestro-agent-quiver .
+	cd agent-quiver && docker build --build-arg MAESTRO_VERSION=${MAESTRO_VERSION} --build-arg MAESTRO_BRANCH=${MAESTRO_BRANCH} -t maestroperf/maestro-agent-quiver:${MAESTRO_VERSION} -t maestroperf/maestro-agent-quiver:${MAESTRO_LABEL_VERSION} --target maestro-agent-quiver .
 
 build: maestro
 
