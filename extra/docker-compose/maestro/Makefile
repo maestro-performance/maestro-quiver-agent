@@ -26,6 +26,7 @@ build: maestro
 
 push: build
 	docker push maestroperf/maestro-agent-quiver:${MAESTRO_VERSION}
+	docker push maestroperf/maestro-agent-quiver:${MAESTRO_LABEL_VERSION}
 
 all: push
 
