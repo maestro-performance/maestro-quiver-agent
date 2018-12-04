@@ -30,7 +30,7 @@ FROM maestro-base AS maestro-agent-quiver
 ENV MAESTRO_WORKER_TYPE agent
 MAINTAINER Otavio Rodolfo Piske <angusyoung@gmail.com>
 LABEL MAESTRO_WORKER_TYPE=${MAESTRO_WORKER_TYPE}
-COPY --from=buildimg ${MAESTRO_APP_ROOT}/maestro-${MAESTRO_WORKER_TYPE} maestro-${MAESTRO_WORKER_TYPE}
+COPY --from=buildimg /root/build/maestro-${MAESTRO_WORKER_TYPE} maestro-${MAESTRO_WORKER_TYPE}
 
 ADD ${MAESTRO_WORKER_TYPE}/log4j.properties ${MAESTRO_APP_ROOT}/maestro-${MAESTRO_WORKER_TYPE}/config/log4j.properties
 ADD ${MAESTRO_WORKER_TYPE}/maestro-${MAESTRO_WORKER_TYPE}.properties ${MAESTRO_APP_ROOT}/maestro-${MAESTRO_WORKER_TYPE}/config/maestro-${MAESTRO_WORKER_TYPE}.properties
