@@ -15,6 +15,8 @@ MAESTRO_VERSION?=1.5.0-SNAPSHOT
 MAESTRO_BRANCH?=devel
 MAESTRO_LABEL_VERSION?=${MAESTRO_BRANCH}
 
+default: build
+
 clean:
 	docker rmi -f maestroperf/maestro-agent-quiver:${MAESTRO_VERSION}
 	docker rmi -f maestroperf/maestro-agent-quiver:${MAESTRO_LABEL_VERSION}
