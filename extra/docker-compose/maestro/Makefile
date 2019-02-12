@@ -11,8 +11,8 @@
 #   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
-MAESTRO_VERSION?=1.5.0-SNAPSHOT
-MAESTRO_BRANCH?=devel
+MAESTRO_VERSION?=1.5.4-SNAPSHOT
+MAESTRO_BRANCH?=1.5.x
 MAESTRO_LABEL_VERSION?=${MAESTRO_BRANCH}
 
 default: build

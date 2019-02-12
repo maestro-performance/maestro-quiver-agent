@@ -13,11 +13,11 @@ script: echo "Hooray, nothing do do here"
 deploy:
   # push edge to docker hub
   - provider: script
-    script: bash docker_push edge
+    script: bash docker_push edge devel
     on:
       branch: devel
   # push stable to docker hub
   - provider: script
-    script: bash docker_push stable
+    script: bash docker_push stable master
     on:
       branch: master

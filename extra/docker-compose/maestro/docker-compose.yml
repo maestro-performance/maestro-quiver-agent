@@ -19,7 +19,7 @@ networks:
       driver: bridge
 services:
   broker:
-    image: maestroperf/maestro-broker:1.5.0-SNAPSHOT
+    image: maestroperf/maestro-broker:1.5.3
     networks:
     - cluster
     ports:
@@ -35,7 +35,7 @@ services:
     - "61613:61613"
     - "61616:61616"
   worker:
-    image: maestroperf/maestro-worker:1.5.0-SNAPSHOT
+    image: maestroperf/maestro-worker:1.5.3
     networks:
       - cluster
       - test
@@ -43,7 +43,7 @@ services:
       - broker
       - sut
   inspector:
-      image: maestroperf/maestro-inspector:1.5.0-SNAPSHOT
+      image: maestroperf/maestro-inspector:1.5.3
       ports:
         - "38000:8000"
       networks:
@@ -53,7 +53,7 @@ services:
         - sut
         - broker
   client:
-      image: maestroperf/maestro-client:1.5.0-SNAPSHOT
+      image: maestroperf/maestro-client:1.5.3
       networks:
         - cluster
       ports:
@@ -62,7 +62,7 @@ services:
         - worker
         - broker
   reports:
-    image: maestroperf/maestro-reports:1.5.0-SNAPSHOT
+    image: maestroperf/maestro-reports:1.5.3
     networks:
       - cluster
     ports:
@@ -75,7 +75,7 @@ services:
     build:
       context: agent-quiver
       args:
-      - MAESTRO_VERSION=1.5.0-SNAPSHOT
+      - MAESTRO_VERSION=1.5.3
       target: maestro-agent-quiver
     ports:
     - "48000:8000"
