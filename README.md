@@ -44,7 +44,7 @@ may need to be increased to accommodate the capacity of the hardware in use.
 Demo: OpenShift
 ----
 
-Sample execution of a performance test, using the Agent and [QPid JMS](https://qpid.apache.org/components/jms/index.html) 
+Sample execution of a performance test, using the Agent and [Qpid JMS](https://qpid.apache.org/components/jms/index.html) 
 implementation from Quiver.
 
 [![asciicast](https://asciinema.org/a/nrKztBYUJ8VYQ1AawtTH6XDsL.svg)](https://asciinema.org/a/nrKztBYUJ8VYQ1AawtTH6XDsL)
