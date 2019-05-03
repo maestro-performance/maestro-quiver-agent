@@ -25,15 +25,6 @@ services:
     ports:
     - "18161:8161"
     - "1884:1883"
-  sut:
-    build: suts/apache-artemis
-    networks:
-    - test
-    ports:
-    - "5672:5672"
-    - "8161:8161"
-    - "61613:61613"
-    - "61616:61616"
   worker:
     image: maestroperf/maestro-worker:testing-1.5
     networks:
